@@ -1,0 +1,172 @@
+// 
+// setting up the initial values for neuromodulators and sending commands to change these values at certain times for certain experiments 
+Mods2 = ACHlevel
+
+if (Experiment == 0 || Experiment == 1 || Experiment == 2) {
+ACHe = 2//Mods2
+ACHc = 2//Mods2
+
+Plasticity = 1
+
+ACH2 =Mods2
+Da2 =Mods2
+
+ACH =2
+Da = 2
+
+}
+
+if (Experiment == 3 || Experiment == 4 || Experiment == 5) {
+ACH = Mods2
+
+LearningShutDown_pyr2pyr = 0
+LearningShutDown_inter2pyr = 0
+}
+
+ACH_pyr2pyr = ACH
+DA_pyr2pyr = Da
+ACH_mossy = ACH
+DA_mossy = Da
+ACH_inter2pyr = ACH
+ACH_IZH = ACH
+DA_inter2pyr = Da
+DA_IZH = Da
+
+proc Commands() {
+if (Experiment == 0) {
+cvode.event(StimSpace * 5 , "LearningShutDown_pyr2pyr = 0")
+cvode.event(StimSpace * 5 , "LearningShutDown_inter2pyr = 0")
+cvode.event(StimSpace * 5 , "LearningShutDown_mossy = 0")
+
+effectTime = StimSpace * 5
+
+cvode.event(effectTime , "ACH_IZH = ACH2")
+cvode.event(effectTime , "ACH_pyr2pyr = ACH2")
+cvode.event(effectTime , "ACH_mossy = ACH2")
+cvode.event(effectTime , "ACH_inter2pyr = ACH2")
+
+
+cvode.event(effectTime , "DA_pyr2pyr = Da2")
+cvode.event(effectTime , "DA_inter2pyr = Da2")
+cvode.event(effectTime , "DA_mossy = Da2")
+
+} else if (Experiment == 1) {
+effectTime = (CondTrials) * TrialSpace
+	cvode.event(effectTime , "ACH_IZH = 0")
+	cvode.event(effectTime , "ACH_inter2pyr = 0")
+	cvode.event(effectTime , "ACH_pyr2pyr = 0")
+	cvode.event(effectTime , "ACH_pyr2emo = 0")
+	cvode.event(effectTime , "ACH_mossy = 0")
+
+
+effectTime = (CondTrials + EarlyTestTrials) * TrialSpace
+	cvode.event(effectTime , "ACH_IZH = ACH2")
+	cvode.event(effectTime , "ACH_inter2pyr = ACH2")
+	cvode.event(effectTime , "ACH_pyr2pyr = ACH2")
+	cvode.event(effectTime , "ACH_pyr2emo = ACH2")
+	cvode.event(effectTime , "ACH_mossy = ACH2")
+
+	if (Plasticity == 0) {
+		cvode.event(effectTime , "LearningShutDown_pyr2pyr = 0")
+		cvode.event(effectTime , "LearningShutDown_inter2pyr = 0")
+	}
+
+effectTime = (CondTrials + EarlyTestTrials + ExtTrials) * TrialSpace
+	cvode.event(effectTime , "LearningShutDown_emo_pyr2pyr = 0")
+	cvode.event(effectTime , "LearningShutDown_emo_inter2pyr = 0")
+
+effectTime = (CondTrials + EarlyTestTrials + ExtTrials) * TrialSpace
+		cvode.event(effectTime , "ACH_IZH = ACHe")
+		cvode.event(effectTime , "ACH_inter2pyr = ACHe")
+		cvode.event(effectTime , "ACH_pyr2pyr = ACHe")
+		cvode.event(effectTime , "ACH_pyr2emo = ACHe")
+		
+effectTime = (CondTrials + EarlyTestTrials + ExtTrials + TestTrials) * TrialSpace
+	
+	cvode.event(effectTime , "ACH_IZH = ACHc")
+	cvode.event(effectTime , "ACH_inter2pyr = ACHc")
+	cvode.event(effectTime , "ACH_pyr2pyr = ACHc")
+	cvode.event(effectTime , "ACH_pyr2emo = ACHc")
+		
+
+	} else if (Experiment == 2) {
+
+cvode.event(StimSpace * 10 , "LearningShutDown_pyr2pyr = 0")
+cvode.event(StimSpace * 10 , "LearningShutDown_inter2pyr = 0")
+cvode.event(StimSpace * 10 , "LearningShutDown_mossy = 0")
+
+effectTime = StimSpace * 10
+
+cvode.event(effectTime , "ACH_IZH = ACH2")
+cvode.event(effectTime , "ACH_pyr2pyr = ACH2")
+cvode.event(effectTime , "ACH_inter2pyr = ACH2")
+cvode.event(effectTime , "ACH_mossy = ACH2")
+cvode.event(effectTime , "ACH_pyr2emo = ACH2")
+
+cvode.event(effectTime , "DA_pyr2pyr = Da2")
+cvode.event(effectTime , "DA_inter2pyr = Da2")
+cvode.event(effectTime , "DA_mossy = Da2")
+	}
+}
+
+// Setting the parameters simulation time step and duration
+dttime  = .1 //.025
+numsteps = 1/dttime
+
+if (Experiment == 0 ) {
+
+tstop = 10000
+} else if(Experiment ==1) {
+
+tstop = 12000
+	if (ExtendedExt >0) {
+		tstop = tstop + (12000/17 ) * ExtendedExt
+	}
+
+} else if (Experiment ==2) {
+
+tstop = 13000
+} else if (Experiment ==3) {
+
+tstop = 15000
+} else if (Experiment ==4) {
+
+tstop = 400
+} else if (Experiment ==5) {
+
+tstop = 3000
+}
+
+{load_file("nrngui.hoc")}
+objectvar save_window_, rvp_
+objectvar scene_vector_[6]
+objectvar ocbox_, ocbox_list_, scene_, scene_list_
+{ocbox_list_ = new List()  scene_list_ = new List()}
+{pwman_place(0,0,0)}
+{
+xpanel("RunControl", 0)
+v_init = -65
+xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+xbutton("Init & Run","run()")
+xbutton("Stop","stoprun=1")
+runStopAt = 5
+xvalue("Continue til","runStopAt", 1,"{continuerun(runStopAt) stoprun=1}", 1, 1 )
+runStopIn = 1
+xvalue("Continue for","runStopIn", 1,"{continuerun(t + runStopIn) stoprun=1}", 1, 1 )
+xbutton("Single Step","steprun()")
+t = tstop
+xvalue("t","t", 2 )
+tstop = tstop
+xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+dt = dttime //.025
+xvalue("dt","dt", 1,"setdt()", 0, 1 )
+steps_per_ms = numsteps //40
+xvalue("Points plotted/ms","steps_per_ms", 1,"setdt()", 0, 1 )
+screen_update_invl = 10 //0.05
+xvalue("Scrn update invl","screen_update_invl", 1,"", 0, 1 )
+realtime = 2.82
+xvalue("Real Time","realtime", 0,"", 0, 1 )
+xpanel(800,8) // 2000
+}
+
+	
