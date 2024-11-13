@@ -11,7 +11,7 @@ firstRow = 1
 objref rC
 {
 rC = new Random(seed)
-rc.Random123()
+rC.Random123()
 }
 
 
