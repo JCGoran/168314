@@ -9,7 +9,10 @@ Connections = new Matrix(1,6)
 firstRow = 1
 
 objref rC
-{rC = new Random(seed)} 
+{
+rC = new Random(seed)
+rc.Random123()
+}
 
 
 proc AddtoGlobal () { localobj ConRow
