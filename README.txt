@@ -231,3 +231,6 @@ For assistance are any questions, please contact:
 hummosa@gmail.com
 Health Informatics, University of Missouri Columbia
 
+Changelog
+---------
+2024-11: Updated hoc files to use Random123
